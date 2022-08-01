@@ -43,9 +43,8 @@ export default class GetMethodParser {
         return this.parseStack(result.stack)
     }
 
-    static parseStack(stack: any) {
-        const arr = stack.map(GetMethodParser.parseResponseStack);
-        return arr.length === 1 ? arr[0] : arr;
+    static parseStack(stack: any): any[] {
+        return stack.map(GetMethodParser.parseResponseStack);
     }
 
     static makeArg(arg: any) {

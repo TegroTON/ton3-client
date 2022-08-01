@@ -1,0 +1,25 @@
+{
+  "name": "ton3-client",
+  "version": "0.0.1",
+  "description": "client for ton3",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pyAndr3w/ton3-client.git"
+  },
+  "author": "pyAndr3w",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pyAndr3w/ton3-client/issues"
+  },
+  "homepage": "https://github.com/pyAndr3w/ton3-client#readme",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "io-ts": "^2.2.17",
+    "io-ts-reporters": "^2.0.1",
+    "ton3-core": "^0.0.14"
+  }
+}

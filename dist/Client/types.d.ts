@@ -1,14 +1,12 @@
 import { Address, Coins } from 'ton3-core';
-
-export type TonMessageData = {
-    type: 'text',
-    text: string
+export declare type TonMessageData = {
+    type: 'text';
+    text: string;
 } | {
-    type: 'data',
-    data: Uint8Array
+    type: 'data';
+    data: Uint8Array;
 };
-
-export type TonMessage = {
+export declare type TonMessage = {
     source: Address | null;
     destination: Address | null;
     value: Coins;
@@ -17,8 +15,7 @@ export type TonMessage = {
     createdLt: string;
     body: TonMessageData | null;
 };
-
-export type TonTransaction = {
+export declare type TonTransaction = {
     id: {
         lt: string;
         hash: string;

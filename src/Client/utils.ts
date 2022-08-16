@@ -1,7 +1,7 @@
-import {HTTPMessage, HTTPTransaction} from "../HttpApi/types";
-import {TonMessage, TonTransaction} from "./types";
-import {Address, Coins} from "ton3-core";
-import {base64ToBytes, bytesToString} from "ton3-core/dist/utils/helpers";
+import { Address, Coins } from 'ton3-core';
+import { base64ToBytes, bytesToString } from 'ton3-core/dist/utils/helpers';
+import { HTTPMessage, HTTPTransaction } from '../HttpApi/types';
+import { TonMessage, TonTransaction } from './types';
 
 export function convertMessage(t: HTTPMessage): TonMessage {
     return {
@@ -16,7 +16,7 @@ export function convertMessage(t: HTTPMessage): TonMessage {
                 ? { type: 'data', data: base64ToBytes(t.msg_data.body) }
                 : (t.msg_data['@type'] === 'msg.dataText'
                     ? { type: 'text', text: bytesToString(base64ToBytes(t.msg_data.text)) }
-                    : null))
+                    : null)),
     };
 }
 
@@ -29,6 +29,6 @@ export function convertTransaction(r: HTTPTransaction): TonTransaction {
         otherFee: new Coins(r.other_fee, true),
         fee: new Coins(r.fee, true),
         inMessage: r.in_msg ? convertMessage(r.in_msg) : null,
-        outMessages: r.out_msgs.map(convertMessage)
-    }
+        outMessages: r.out_msgs.map(convertMessage),
+    };
 }

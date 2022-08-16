@@ -1,4 +1,4 @@
-import * as t from "io-ts";
+import * as t from 'io-ts';
 
 export const blockIdExt = t.type({
     '@type': t.literal('ton.blockIdExt'),
@@ -6,7 +6,7 @@ export const blockIdExt = t.type({
     shard: t.string,
     seqno: t.number,
     root_hash: t.string,
-    file_hash: t.string
+    file_hash: t.string,
 });
 
 export const addressInformation = t.type({
@@ -17,14 +17,14 @@ export const addressInformation = t.type({
     last_transaction_id: t.type({
         '@type': t.literal('internal.transactionId'),
         lt: t.string,
-        hash: t.string
+        hash: t.string,
     }),
     block_id: blockIdExt,
-    sync_utime: t.number
+    sync_utime: t.number,
 });
 
 export const bocResponse = t.type({
-    '@type': t.literal('ok')
+    '@type': t.literal('ok'),
 });
 
 export const feeResponse = t.type({
@@ -34,33 +34,33 @@ export const feeResponse = t.type({
         in_fwd_fee: t.number,
         storage_fee: t.number,
         gas_fee: t.number,
-        fwd_fee: t.number
-    })
+        fwd_fee: t.number,
+    }),
 });
 
 export const callGetMethod = t.type({
     gas_used: t.number,
     exit_code: t.number,
-    stack: t.array(t.unknown)
+    stack: t.array(t.unknown),
 });
 
 export const messageData = t.union([
     t.type({
         '@type': t.literal('msg.dataRaw'),
-        'body': t.string
+        body: t.string,
     }),
     t.type({
         '@type': t.literal('msg.dataText'),
-        'text': t.string
+        text: t.string,
     }),
     t.type({
         '@type': t.literal('msg.dataDecryptedText'),
-        'text': t.string
+        text: t.string,
     }),
     t.type({
         '@type': t.literal('msg.dataEncryptedText'),
-        'text': t.string
-    })
+        text: t.string,
+    }),
 ]);
 
 export const message = t.type({
@@ -71,7 +71,7 @@ export const message = t.type({
     ihr_fee: t.string,
     created_lt: t.string,
     body_hash: t.string,
-    msg_data: messageData
+    msg_data: messageData,
 });
 
 export const transaction = t.type({
@@ -79,13 +79,13 @@ export const transaction = t.type({
     utime: t.number,
     transaction_id: t.type({
         lt: t.string,
-        hash: t.string
+        hash: t.string,
     }),
     fee: t.string,
     storage_fee: t.string,
     other_fee: t.string,
     in_msg: t.union([t.undefined, message]),
-    out_msgs: t.array(message)
+    out_msgs: t.array(message),
 });
 
 export const getTransactions = t.array(transaction);
@@ -93,11 +93,11 @@ export const getTransactions = t.array(transaction);
 export const getMasterchain = t.type({
     state_root_hash: t.string,
     last: blockIdExt,
-    init: blockIdExt
+    init: blockIdExt,
 });
 
 export const getShards = t.type({
-    shards: t.array(blockIdExt)
+    shards: t.array(blockIdExt),
 });
 
 export const blockShortTxt = t.type({
@@ -105,14 +105,14 @@ export const blockShortTxt = t.type({
     mode: t.number,
     account: t.string,
     lt: t.string,
-    hash: t.string
-})
+    hash: t.string,
+});
 
 export const getBlockTransactions = t.type({
     id: blockIdExt,
     req_count: t.number,
     incomplete: t.boolean,
-    transactions: t.array(blockShortTxt)
+    transactions: t.array(blockShortTxt),
 });
 
 export type HTTPTransaction = t.TypeOf<typeof getTransactions>[number];

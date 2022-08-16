@@ -1,4 +1,4 @@
-import {BOC} from "ton3-core";
+import { BOC } from 'ton3-core';
 
 export default class GetMethodParser {
     static parseObject(x: any): any {
@@ -16,7 +16,7 @@ export default class GetMethodParser {
         case 'tvm.stackEntryNumber':
             return GetMethodParser.parseObject(x.number);
         case 'tvm.numberDecimal':
-            return x.number.slice(0,1) === "-" ? BigInt(0)-BigInt(x.number.slice(1)) : BigInt(x.number);
+            return x.number.slice(0, 1) === '-' ? BigInt(0) - BigInt(x.number.slice(1)) : BigInt(x.number);
         default:
             throw new Error(`unknown type ${typeName}`);
         }
@@ -28,7 +28,7 @@ export default class GetMethodParser {
 
         switch (typeName) {
         case 'num':
-            return value.slice(0,1) === "-" ? BigInt(0)-BigInt(value.slice(1)) : BigInt(value);
+            return value.slice(0, 1) === '-' ? BigInt(0) - BigInt(value.slice(1)) : BigInt(value);
         case 'list':
         case 'tuple':
             return GetMethodParser.parseObject(value);
@@ -40,7 +40,7 @@ export default class GetMethodParser {
     }
 
     static parseRawResult(result: any) {
-        return this.parseStack(result.stack)
+        return this.parseStack(result.stack);
     }
 
     static parseStack(stack: any): any[] {
@@ -58,4 +58,3 @@ export default class GetMethodParser {
         return args.map(this.makeArg);
     }
 }
-

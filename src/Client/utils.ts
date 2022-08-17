@@ -7,9 +7,9 @@ export function convertMessage(t: HTTPMessage): TonMessage {
     return {
         source: t.source !== '' ? new Address(t.source) : null,
         destination: t.destination !== '' ? new Address(t.destination) : null,
-        forwardFee: new Coins(t.fwd_fee, true),
-        ihrFee: new Coins(t.ihr_fee, true),
-        value: new Coins(t.value, true),
+        forwardFee: new Coins(t.fwd_fee, { isNano: true }),
+        ihrFee: new Coins(t.ihr_fee, { isNano: true }),
+        value: new Coins(t.value, { isNano: true }),
         createdLt: t.created_lt,
         body: (
             t.msg_data['@type'] === 'msg.dataRaw'
@@ -25,9 +25,9 @@ export function convertTransaction(r: HTTPTransaction): TonTransaction {
         id: { lt: r.transaction_id.lt, hash: r.transaction_id.hash },
         time: r.utime,
         data: r.data,
-        storageFee: new Coins(r.storage_fee, true),
-        otherFee: new Coins(r.other_fee, true),
-        fee: new Coins(r.fee, true),
+        storageFee: new Coins(r.storage_fee, { isNano: true }),
+        otherFee: new Coins(r.other_fee, { isNano: true }),
+        fee: new Coins(r.fee, { isNano: true }),
         inMessage: r.in_msg ? convertMessage(r.in_msg) : null,
         outMessages: r.out_msgs.map(convertMessage),
     };

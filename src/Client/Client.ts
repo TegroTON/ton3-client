@@ -69,7 +69,7 @@ export class TonClient {
 
     async getContractState(address: Address) {
         const info = await this.#api.getAddressInformation(address);
-        const balance = new Coins(info.balance, true);
+        const balance = new Coins(info.balance, { isNano: true });
         const state = info.state as 'frozen' | 'active' | 'uninitialized';
         return {
             balance,

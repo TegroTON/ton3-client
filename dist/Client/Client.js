@@ -55,7 +55,7 @@ class TonClient {
     }
     async getContractState(address) {
         const info = await __classPrivateFieldGet(this, _TonClient_api, "f").getAddressInformation(address);
-        const balance = new ton3_core_1.Coins(info.balance, true);
+        const balance = new ton3_core_1.Coins(info.balance, { isNano: true });
         const state = info.state;
         return {
             balance,

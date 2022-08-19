@@ -46,7 +46,7 @@ export declare class TonClient {
     }>;
     sendMessage(src: MessageExternalIn, key: Uint8Array): Promise<void>;
     sendBoc(src: Cell): Promise<void>;
-    getEstimateFee(address: Address, body: Cell, ignoreSignature?: boolean): Promise<{
+    getEstimateFee(src: MessageExternalIn | Cell): Promise<{
         inFwdFee: Coins;
         storageFee: Coins;
         gasFee: Coins;

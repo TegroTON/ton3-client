@@ -1,5 +1,7 @@
-import { Address, Cell, Coins } from 'ton3-core';
-import { base64ToBytes } from 'ton3-core/dist/utils/helpers';
+import {
+    Address, Builder, Cell, Coins, Slice,
+} from 'ton3-core';
+import { base64ToBytes, hexToBytes } from 'ton3-core/dist/utils/helpers';
 import { MessageExternalIn } from 'ton3-core/dist/contracts';
 import { HttpApi } from '../HttpApi/HttpApi';
 import GetMethodParser from '../GetMethodParser';
@@ -99,17 +101,66 @@ export class TonClient {
     }
 
     async getEstimateFee(
-        address: Address,
-        body: Cell,
-        ignoreSignature = true,
+        src: MessageExternalIn | Cell,
     ) {
+        const msgSlice = Slice.parse(src instanceof Cell ? src : src.sign(hexToBytes('4a41991bb2834030d8587e12dd0e8140c181316db51b289890ccd4f64e41345f4a41991bb2834030d8587e12dd0e8140c181316db51b289890ccd4f64e41345f')));
+        msgSlice.skip(2);
+        msgSlice.loadAddress();
+        const address = msgSlice.loadAddress();
+        if (!address) throw Error('Invalid Address (addr_none)');
+        msgSlice.loadCoins();
+
+        let body;
+        let initCode;
+        let initData;
+
+        const parseState = (stateSlice: Slice): { data?: Cell, code?: Cell } => {
+            let data;
+            let code;
+            const maybeDepth = stateSlice.loadBit();
+            if (maybeDepth) stateSlice.skip(5);
+            const maybeTickTock = stateSlice.loadBit();
+            if (maybeTickTock) stateSlice.skip(2);
+            const maybeCode = stateSlice.loadBit();
+            if (maybeCode) code = stateSlice.loadRef();
+            const maybeData = stateSlice.loadBit();
+            if (maybeData) data = stateSlice.loadRef();
+            stateSlice.skipDict();
+            return { data, code };
+        };
+
+        const maybeState = msgSlice.loadBit();
+        if (maybeState) {
+            const eitherState = msgSlice.loadBit();
+            if (eitherState) {
+                const stateSlice = Slice.parse(msgSlice.loadRef());
+                const { data, code } = parseState(stateSlice);
+                initData = data;
+                initCode = code;
+            } else {
+                const stateSlice = Slice.parse(msgSlice.loadRef());
+                const { data, code } = parseState(stateSlice);
+                initData = data;
+                initCode = code;
+            }
+        }
+
+        const eitherBody = msgSlice.loadBit();
+        if (eitherBody) {
+            body = msgSlice.loadRef();
+        } else {
+            body = new Builder().storeSlice(msgSlice).cell();
+        }
+
         const {
             source_fees: {
                 in_fwd_fee, storage_fee, gas_fee, fwd_fee,
             },
         } = await this.#api.estimateFee(address, {
             body,
-            ignoreSignature,
+            initData,
+            initCode,
+            ignoreSignature: true,
         });
 
         return {

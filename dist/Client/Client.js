@@ -80,10 +80,63 @@ class TonClient {
     async sendBoc(src) {
         await __classPrivateFieldGet(this, _TonClient_api, "f").sendBoc(src);
     }
-    async getEstimateFee(address, body, ignoreSignature = true) {
+    async getEstimateFee(src) {
+        const msgSlice = ton3_core_1.Slice.parse(src instanceof ton3_core_1.Cell ? src : src.sign((0, helpers_1.hexToBytes)('4a41991bb2834030d8587e12dd0e8140c181316db51b289890ccd4f64e41345f4a41991bb2834030d8587e12dd0e8140c181316db51b289890ccd4f64e41345f')));
+        msgSlice.skip(2);
+        msgSlice.loadAddress();
+        const address = msgSlice.loadAddress();
+        if (!address)
+            throw Error('Invalid Address (addr_none)');
+        msgSlice.loadCoins();
+        let body;
+        let initCode;
+        let initData;
+        const parseState = (stateSlice) => {
+            let data;
+            let code;
+            const maybeDepth = stateSlice.loadBit();
+            if (maybeDepth)
+                stateSlice.skip(5);
+            const maybeTickTock = stateSlice.loadBit();
+            if (maybeTickTock)
+                stateSlice.skip(2);
+            const maybeCode = stateSlice.loadBit();
+            if (maybeCode)
+                code = stateSlice.loadRef();
+            const maybeData = stateSlice.loadBit();
+            if (maybeData)
+                data = stateSlice.loadRef();
+            stateSlice.skipDict();
+            return { data, code };
+        };
+        const maybeState = msgSlice.loadBit();
+        if (maybeState) {
+            const eitherState = msgSlice.loadBit();
+            if (eitherState) {
+                const stateSlice = ton3_core_1.Slice.parse(msgSlice.loadRef());
+                const { data, code } = parseState(stateSlice);
+                initData = data;
+                initCode = code;
+            }
+            else {
+                const stateSlice = ton3_core_1.Slice.parse(msgSlice.loadRef());
+                const { data, code } = parseState(stateSlice);
+                initData = data;
+                initCode = code;
+            }
+        }
+        const eitherBody = msgSlice.loadBit();
+        if (eitherBody) {
+            body = msgSlice.loadRef();
+        }
+        else {
+            body = new ton3_core_1.Builder().storeSlice(msgSlice).cell();
+        }
         const { source_fees: { in_fwd_fee, storage_fee, gas_fee, fwd_fee, }, } = await __classPrivateFieldGet(this, _TonClient_api, "f").estimateFee(address, {
             body,
-            ignoreSignature,
+            initData,
+            initCode,
+            ignoreSignature: true,
         });
         return {
             inFwdFee: new ton3_core_1.Coins(in_fwd_fee, { isNano: true }),

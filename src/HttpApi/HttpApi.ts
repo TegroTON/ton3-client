@@ -105,8 +105,8 @@ export class HttpApi {
 
     async estimateFee(address: Address, args: {
         body: Cell,
-        initCode: Cell | null,
-        initData: Cell | null,
+        initCode?: Cell,
+        initData?: Cell,
         ignoreSignature: boolean
     }) {
         return this.doCall('estimateFee', {

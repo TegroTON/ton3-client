@@ -74,6 +74,24 @@ class TonClient {
             timestamp: info.sync_utime,
         };
     }
+    async sendMessage(src, key) {
+        await this.sendBoc(src.sign(key));
+    }
+    async sendBoc(src) {
+        await __classPrivateFieldGet(this, _TonClient_api, "f").sendBoc(src);
+    }
+    async getEstimateFee(address, body, ignoreSignature = true) {
+        const { source_fees: { in_fwd_fee, storage_fee, gas_fee, fwd_fee, }, } = await __classPrivateFieldGet(this, _TonClient_api, "f").estimateFee(address, {
+            body,
+            ignoreSignature,
+        });
+        return {
+            inFwdFee: new ton3_core_1.Coins(in_fwd_fee, { isNano: true }),
+            storageFee: new ton3_core_1.Coins(storage_fee, { isNano: true }),
+            gasFee: new ton3_core_1.Coins(gas_fee, { isNano: true }),
+            fwdFee: new ton3_core_1.Coins(fwd_fee, { isNano: true }),
+        };
+    }
 }
 exports.TonClient = TonClient;
 _TonClient_api = new WeakMap();

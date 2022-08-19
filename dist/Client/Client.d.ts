@@ -1,4 +1,5 @@
-import { Address, Coins } from 'ton3-core';
+import { Address, Cell, Coins } from 'ton3-core';
+import { MessageExternalIn } from 'ton3-core/dist/contracts';
 import { TonTransaction } from './types';
 export declare type TonClientParameters = {
     endpoint: string;
@@ -42,5 +43,13 @@ export declare class TonClient {
             seqno: number;
         };
         timestamp: number;
+    }>;
+    sendMessage(src: MessageExternalIn, key: Uint8Array): Promise<void>;
+    sendBoc(src: Cell): Promise<void>;
+    getEstimateFee(address: Address, body: Cell, ignoreSignature?: boolean): Promise<{
+        inFwdFee: Coins;
+        storageFee: Coins;
+        gasFee: Coins;
+        fwdFee: Coins;
     }>;
 }

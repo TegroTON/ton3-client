@@ -1,5 +1,6 @@
-import { Address, Coins } from 'ton3-core';
+import { Address, Cell, Coins } from 'ton3-core';
 import { base64ToBytes } from 'ton3-core/dist/utils/helpers';
+import { MessageExternalIn } from 'ton3-core/dist/contracts';
 import { HttpApi } from '../HttpApi/HttpApi';
 import GetMethodParser from '../GetMethodParser';
 import { TonTransaction } from './types';
@@ -86,6 +87,36 @@ export class TonClient {
                 seqno: info.block_id.seqno,
             },
             timestamp: info.sync_utime,
+        };
+    }
+
+    async sendMessage(src: MessageExternalIn, key: Uint8Array) {
+        await this.sendBoc(src.sign(key));
+    }
+
+    async sendBoc(src: Cell) {
+        await this.#api.sendBoc(src);
+    }
+
+    async getEstimateFee(
+        address: Address,
+        body: Cell,
+        ignoreSignature = true,
+    ) {
+        const {
+            source_fees: {
+                in_fwd_fee, storage_fee, gas_fee, fwd_fee,
+            },
+        } = await this.#api.estimateFee(address, {
+            body,
+            ignoreSignature,
+        });
+
+        return {
+            inFwdFee: new Coins(in_fwd_fee, { isNano: true }),
+            storageFee: new Coins(storage_fee, { isNano: true }),
+            gasFee: new Coins(gas_fee, { isNano: true }),
+            fwdFee: new Coins(fwd_fee, { isNano: true }),
         };
     }
 }

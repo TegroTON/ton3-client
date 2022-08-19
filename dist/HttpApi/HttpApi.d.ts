@@ -170,8 +170,8 @@ export declare class HttpApi {
     sendBoc(body: Cell): Promise<void>;
     estimateFee(address: Address, args: {
         body: Cell;
-        initCode: Cell | null;
-        initData: Cell | null;
+        initCode?: Cell;
+        initData?: Cell;
         ignoreSignature: boolean;
     }): Promise<{
         '@type': "query.fees";

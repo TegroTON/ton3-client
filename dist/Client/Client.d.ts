@@ -1,6 +1,8 @@
 import { Address, Cell, Coins } from 'ton3-core';
 import { MessageExternalIn } from 'ton3-core/dist/contracts';
-import { JettonTransaction, MetadataKeys, TonTransaction } from './types';
+import { TonTransaction } from './types';
+import { Dns } from './DNS';
+import { Jetton } from './Jetton';
 export declare type TonClientParameters = {
     endpoint: string;
     timeout?: number;
@@ -12,6 +14,8 @@ export declare type TonClientResolvedParameters = {
 export declare class TonClient {
     #private;
     readonly parameters: TonClientResolvedParameters;
+    DNS: Dns;
+    Jetton: Jetton;
     constructor(parameters: TonClientParameters);
     isTestnet(): boolean;
     callGetMethod(address: Address, name: string, params?: any[]): Promise<{
@@ -53,23 +57,4 @@ export declare class TonClient {
         gasFee: Coins;
         fwdFee: Coins;
     }>;
-    getJettonWalletAddress(jettonMasterContract: Address, walletOwner: Address): Promise<Address>;
-    getJettonData(jettonMasterContract: Address, opts?: {
-        metadataKeys?: MetadataKeys;
-    }): Promise<{
-        totalSupply: any;
-        adminAddress: Address | null;
-        content: {
-            [key: string]: string;
-        };
-        jettonWalletCode: any;
-    }>;
-    getJettonWalletData(jettonWallet: Address): Promise<{
-        balance: Coins;
-        ownerAddress: Address;
-        jettonMasterAddress: Address;
-        jettonWalletCode: Cell;
-    }>;
-    getJettonBalance(jettonWallet: Address): Promise<Coins>;
-    getJettonTransactions(jettonWallet: Address, limit?: number): Promise<JettonTransaction[]>;
 }

@@ -6,7 +6,7 @@ import axios from 'axios';
 import {
     addressInformation, getTransactions, getMasterchain, callGetMethod, bocResponse, feeResponse,
 } from './types';
-import { base64ToHex } from '../utils';
+import { base64ToHex } from '../Utils/Helpers';
 
 export interface HttpApiParameters {
     timeout?: number;
@@ -41,6 +41,7 @@ export class HttpApi {
         hash?: string,
         to_lt?: string,
         inclusive?: boolean
+        archival?: boolean
     }) {
         const { inclusive } = opts;
         delete opts.inclusive;

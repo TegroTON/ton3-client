@@ -1,6 +1,6 @@
 import { Address, Cell, Coins } from 'ton3-core';
 import { MessageExternalIn } from 'ton3-core/dist/contracts';
-import { TonTransaction } from './types';
+import { JettonTransaction, MetadataKeys, TonTransaction } from './types';
 export declare type TonClientParameters = {
     endpoint: string;
     timeout?: number;
@@ -14,7 +14,7 @@ export declare class TonClient {
     readonly parameters: TonClientResolvedParameters;
     constructor(parameters: TonClientParameters);
     isTestnet(): boolean;
-    callGetMethodWithError(address: Address, name: string, params?: any[]): Promise<{
+    callGetMethod(address: Address, name: string, params?: any[]): Promise<{
         gasUsed: number;
         stack: any[];
         exitCode: number;
@@ -25,6 +25,7 @@ export declare class TonClient {
         hash?: string;
         to_lt?: string;
         inclusive?: boolean;
+        archival?: boolean;
     }): Promise<TonTransaction[]>;
     getBalance(address: Address): Promise<Coins>;
     isContractDeployed(address: Address): Promise<boolean>;
@@ -52,4 +53,23 @@ export declare class TonClient {
         gasFee: Coins;
         fwdFee: Coins;
     }>;
+    getJettonWalletAddress(jettonMasterContract: Address, walletOwner: Address): Promise<Address>;
+    getJettonData(jettonMasterContract: Address, opts?: {
+        metadataKeys?: MetadataKeys;
+    }): Promise<{
+        totalSupply: any;
+        adminAddress: Address | null;
+        content: {
+            [key: string]: string;
+        };
+        jettonWalletCode: any;
+    }>;
+    getJettonWalletData(jettonWallet: Address): Promise<{
+        balance: Coins;
+        ownerAddress: Address;
+        jettonMasterAddress: Address;
+        jettonWalletCode: Cell;
+    }>;
+    getJettonBalance(jettonWallet: Address): Promise<Coins>;
+    getJettonTransactions(jettonWallet: Address, limit?: number): Promise<JettonTransaction[]>;
 }

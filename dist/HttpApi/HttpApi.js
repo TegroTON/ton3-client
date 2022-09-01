@@ -9,7 +9,7 @@ const Either_1 = require("fp-ts/lib/Either");
 const io_ts_reporters_1 = __importDefault(require("io-ts-reporters"));
 const axios_1 = __importDefault(require("axios"));
 const types_1 = require("./types");
-const utils_1 = require("../utils");
+const Helpers_1 = require("../Utils/Helpers");
 class HttpApi {
     constructor(endpoint, parameters) {
         this.endpoint = endpoint;
@@ -26,7 +26,7 @@ class HttpApi {
         delete opts.inclusive;
         let hash;
         if (opts.hash) {
-            hash = (0, utils_1.base64ToHex)(opts.hash);
+            hash = (0, Helpers_1.base64ToHex)(opts.hash);
         }
         let { limit } = opts;
         if (opts.hash && opts.lt && !inclusive) {
@@ -51,7 +51,7 @@ class HttpApi {
         return this.doCall('getMasterchainInfo', {}, types_1.getMasterchain);
     }
     async getTransaction(address, lt, hash) {
-        const convHash = (0, utils_1.base64ToHex)(hash);
+        const convHash = (0, Helpers_1.base64ToHex)(hash);
         const res = await this.doCall('getTransactions', {
             address: address.toString(),
             lt,

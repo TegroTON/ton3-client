@@ -33,6 +33,7 @@ export declare class HttpApi {
         hash?: string;
         to_lt?: string;
         inclusive?: boolean;
+        archival?: boolean;
     }): Promise<{
         data: string;
         utime: number;

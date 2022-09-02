@@ -11,7 +11,7 @@ class Jetton {
     constructor(client) {
         this.client = client;
     }
-    async getJettonWalletAddress(jettonMasterContract, walletOwner) {
+    async getWalletAddress(jettonMasterContract, walletOwner) {
         const ownerAddressCell = new ton3_core_1.Builder().storeAddress(walletOwner).cell();
         const { stack } = await this.client.callGetMethod(jettonMasterContract, 'get_wallet_address', [
             [
@@ -21,7 +21,7 @@ class Jetton {
         ]);
         return ton3_core_1.Slice.parse(stack[0]).preloadAddress();
     }
-    async getJettonData(jettonMasterContract, opts) {
+    async getData(jettonMasterContract, opts) {
         const { stack } = await this.client.callGetMethod(jettonMasterContract, 'get_jetton_data', []);
         const totalSupply = stack[0];
         const adminAddress = ton3_core_1.Slice.parse(stack[2]).loadAddress();
@@ -34,7 +34,7 @@ class Jetton {
             jettonWalletCode,
         };
     }
-    async getJettonWalletData(jettonWallet) {
+    async getWalletData(jettonWallet) {
         const { stack, exitCode, } = await this.client.callGetMethod(jettonWallet, 'get_wallet_data', []);
         if (exitCode === -13)
             throw new Error('Jetton wallet is not deployed.');
@@ -42,7 +42,7 @@ class Jetton {
             throw new Error('Cannot retrieve jetton wallet data.');
         const jettonMasterAddress = ton3_core_1.Slice.parse(stack[2]).preloadAddress();
         const getDecimals = async () => {
-            const { content } = await this.getJettonData(jettonMasterAddress);
+            const { content } = await this.getData(jettonMasterAddress);
             return 'decimals' in content ? ~~(content.decimals) : 9;
         };
         const decimals = await getDecimals();
@@ -56,11 +56,11 @@ class Jetton {
             jettonWalletCode,
         };
     }
-    async getJettonBalance(jettonWallet) {
-        const { balance } = await this.getJettonWalletData(jettonWallet);
+    async getBalance(jettonWallet) {
+        const { balance } = await this.getWalletData(jettonWallet);
         return balance;
     }
-    async getJettonTransactions(jettonWallet, limit = 5) {
+    async getTransactions(jettonWallet, limit = 5) {
         const transactions = await this.client.getTransactions(jettonWallet, { limit });
         return transactions
             .map((transaction) => {

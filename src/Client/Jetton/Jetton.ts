@@ -16,7 +16,7 @@ export class Jetton {
         this.client = client;
     }
 
-    async getJettonWalletAddress(
+    async getWalletAddress(
         jettonMasterContract: Address,
         walletOwner: Address,
     ): Promise<Address> {
@@ -32,7 +32,7 @@ export class Jetton {
         return Slice.parse(stack[0] as Cell).preloadAddress();
     }
 
-    async getJettonData(jettonMasterContract: Address, opts?: { metadataKeys?: MetadataKeys }) {
+    async getData(jettonMasterContract: Address, opts?: { metadataKeys?: MetadataKeys }) {
         const { stack } = await this.client.callGetMethod(jettonMasterContract, 'get_jetton_data', []);
 
         const totalSupply = stack[0];
@@ -50,7 +50,7 @@ export class Jetton {
         };
     }
 
-    async getJettonWalletData(jettonWallet: Address): Promise<{
+    async getWalletData(jettonWallet: Address): Promise<{
         balance: Coins,
         ownerAddress: Address,
         jettonMasterAddress: Address,
@@ -67,7 +67,7 @@ export class Jetton {
         const jettonMasterAddress = Slice.parse(stack[2] as Cell).preloadAddress();
 
         const getDecimals = async (): Promise<number> => {
-            const { content } = await this.getJettonData(jettonMasterAddress);
+            const { content } = await this.getData(jettonMasterAddress);
             return 'decimals' in content ? ~~(content.decimals) : 9;
         };
 
@@ -85,12 +85,12 @@ export class Jetton {
         };
     }
 
-    async getJettonBalance(jettonWallet: Address): Promise<Coins> {
-        const { balance } = await this.getJettonWalletData(jettonWallet);
+    async getBalance(jettonWallet: Address): Promise<Coins> {
+        const { balance } = await this.getWalletData(jettonWallet);
         return balance;
     }
 
-    async getJettonTransactions(jettonWallet: Address, limit = 5) {
+    async getTransactions(jettonWallet: Address, limit = 5) {
         const transactions = await this.client.getTransactions(jettonWallet, { limit });
 
         return transactions

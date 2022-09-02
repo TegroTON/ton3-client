@@ -1,5 +1,5 @@
 import { sha256 } from 'ton3-core/dist/utils/hash';
-import { bytesToHex, hexToBytes, stringToBytes } from 'ton3-core/dist/utils/helpers';
+import { stringToBytes } from 'ton3-core/dist/utils/helpers';
 import {
     Address, BOC, Builder, Cell, Slice,
 } from 'ton3-core';

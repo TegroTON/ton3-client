@@ -4,8 +4,8 @@ import { JettonTransaction, MetadataKeys } from '../types';
 export declare class Jetton {
     private readonly client;
     constructor(client: TonClient);
-    getJettonWalletAddress(jettonMasterContract: Address, walletOwner: Address): Promise<Address>;
-    getJettonData(jettonMasterContract: Address, opts?: {
+    getWalletAddress(jettonMasterContract: Address, walletOwner: Address): Promise<Address>;
+    getData(jettonMasterContract: Address, opts?: {
         metadataKeys?: MetadataKeys;
     }): Promise<{
         totalSupply: any;
@@ -15,12 +15,12 @@ export declare class Jetton {
         };
         jettonWalletCode: any;
     }>;
-    getJettonWalletData(jettonWallet: Address): Promise<{
+    getWalletData(jettonWallet: Address): Promise<{
         balance: Coins;
         ownerAddress: Address;
         jettonMasterAddress: Address;
         jettonWalletCode: Cell;
     }>;
-    getJettonBalance(jettonWallet: Address): Promise<Coins>;
-    getJettonTransactions(jettonWallet: Address, limit?: number): Promise<JettonTransaction[]>;
+    getBalance(jettonWallet: Address): Promise<Coins>;
+    getTransactions(jettonWallet: Address, limit?: number): Promise<JettonTransaction[]>;
 }

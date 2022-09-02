@@ -1,6 +1,6 @@
 {
-  "name": "ton3-client",
-  "version": "0.0.10",
+  "name": "@tegro/ton3-client",
+  "version": "0.0.12",
   "description": "client for ton3",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pyAndr3w/ton3-client.git"
+    "url": "git+https://github.com/TegroTON/ton3-client.git"
   },
   "author": "pyAndr3w",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pyAndr3w/ton3-client/issues"
+    "url": "https://github.com/TegroTON/ton3-client/issues"
   },
-  "homepage": "https://github.com/pyAndr3w/ton3-client#readme",
+  "homepage": "https://github.com/TegroTON/ton3-client#readme",
   "dependencies": {
     "axios": "^0.27.2",
     "io-ts": "^2.2.17",

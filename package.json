@@ -1,6 +1,6 @@
 {
   "name": "@tegro/ton3-client",
-  "version": "0.0.12",
+  "version": "0.0.15",
   "description": "client for ton3",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -21,7 +21,7 @@
     "axios": "^0.27.2",
     "io-ts": "^2.2.17",
     "io-ts-reporters": "^2.0.1",
-    "ton3-core": "^0.0.16"
+    "ton3-core": "^0.0.17"
   },
   "devDependencies": {
     "@types/node": "^18.6.3",

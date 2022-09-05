@@ -11,9 +11,9 @@ import { JettonOperation } from '../constants';
  = InternalMsgBody;
  */
 
-export function parseTransferTransaction(bodySlice: Slice, transaction: TonTransaction): JettonOutcomeTransaction {
+export function parseTransferTransaction(bodySlice: Slice, transaction: TonTransaction, decimals: number): JettonOutcomeTransaction {
     const queryId = bodySlice.loadBigUint(64);
-    const amount = bodySlice.loadCoins();
+    const amount = bodySlice.loadCoins(decimals);
     const destination = bodySlice.loadAddress();
 
     bodySlice.loadAddress(); // response_destination

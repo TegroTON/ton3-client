@@ -5,9 +5,9 @@ const ton3_core_1 = require("ton3-core");
 const helpers_1 = require("ton3-core/dist/utils/helpers");
 const Helpers_1 = require("../../Utils/Helpers");
 const constants_1 = require("../constants");
-function parseTransferTransaction(bodySlice, transaction) {
+function parseTransferTransaction(bodySlice, transaction, decimals) {
     const queryId = bodySlice.loadBigUint(64);
-    const amount = bodySlice.loadCoins();
+    const amount = bodySlice.loadCoins(decimals);
     const destination = bodySlice.loadAddress();
     bodySlice.loadAddress();
     bodySlice.skipDict();

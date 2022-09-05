@@ -50,6 +50,16 @@ export class Jetton {
         };
     }
 
+    async getDecimals(jettonMasterContract: Address) {
+        const { content } = await this.getData(jettonMasterContract);
+        return ~~(content.decimals) || 9;
+    }
+
+    async getDecimalsByWallet(jettonWallet: Address) {
+        const { jettonMasterAddress } = await this.getWalletData(jettonWallet);
+        return this.getDecimals(jettonMasterAddress);
+    }
+
     async getWalletData(jettonWallet: Address): Promise<{
         balance: Coins,
         ownerAddress: Address,
@@ -66,12 +76,7 @@ export class Jetton {
 
         const jettonMasterAddress = Slice.parse(stack[2] as Cell).preloadAddress();
 
-        const getDecimals = async (): Promise<number> => {
-            const { content } = await this.getData(jettonMasterAddress);
-            return 'decimals' in content ? ~~(content.decimals) : 9;
-        };
-
-        const decimals = await getDecimals();
+        const decimals = await this.getDecimals(jettonMasterAddress);
 
         const balance = new Coins(stack[0], { isNano: true, decimals });
         const ownerAddress = Slice.parse(stack[1] as Cell).preloadAddress();
@@ -90,8 +95,9 @@ export class Jetton {
         return balance;
     }
 
-    async getTransactions(jettonWallet: Address, limit = 5) {
+    async getTransactions(jettonWallet: Address, limit = 5, decimals?: number) {
         const transactions = await this.client.getTransactions(jettonWallet, { limit });
+        const jettonDecimals = decimals ?? await this.getDecimalsByWallet(jettonWallet);
 
         return transactions
             .map((transaction): JettonTransaction | null => {
@@ -105,11 +111,11 @@ export class Jetton {
                 try {
                     switch (operation) {
                         case JettonOperation.TRANSFER:
-                            return parseTransferTransaction(bodySlice, transaction);
+                            return parseTransferTransaction(bodySlice, transaction, jettonDecimals);
                         case JettonOperation.INTERNAL_TRANSFER:
-                            return parseInternalTransferTransaction(bodySlice, transaction);
+                            return parseInternalTransferTransaction(bodySlice, transaction, jettonDecimals);
                         case JettonOperation.BURN:
-                            return parseBurnTransaction(bodySlice, transaction);
+                            return parseBurnTransaction(bodySlice, transaction, jettonDecimals);
                         default:
                             return null; // Unknown operation
                     }

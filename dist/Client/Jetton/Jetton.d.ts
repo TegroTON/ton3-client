@@ -15,6 +15,8 @@ export declare class Jetton {
         };
         jettonWalletCode: any;
     }>;
+    getDecimals(jettonMasterContract: Address): Promise<number>;
+    getDecimalsByWallet(jettonWallet: Address): Promise<number>;
     getWalletData(jettonWallet: Address): Promise<{
         balance: Coins;
         ownerAddress: Address;
@@ -22,5 +24,5 @@ export declare class Jetton {
         jettonWalletCode: Cell;
     }>;
     getBalance(jettonWallet: Address): Promise<Coins>;
-    getTransactions(jettonWallet: Address, limit?: number): Promise<JettonTransaction[]>;
+    getTransactions(jettonWallet: Address, limit?: number, decimals?: number): Promise<JettonTransaction[]>;
 }

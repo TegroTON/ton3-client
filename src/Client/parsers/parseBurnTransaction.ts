@@ -7,9 +7,9 @@ import { Slice } from 'ton3-core';
 import { JettonBurnTransaction, TonTransaction } from '../types';
 import { JettonOperation } from '../constants';
 
-export function parseBurnTransaction(bodySlice: Slice, transaction: TonTransaction): JettonBurnTransaction {
+export function parseBurnTransaction(bodySlice: Slice, transaction: TonTransaction, decimals: number): JettonBurnTransaction {
     const queryId = bodySlice.loadBigUint(64);
-    const amount = bodySlice.loadCoins();
+    const amount = bodySlice.loadCoins(decimals);
 
     // bodySlice.readAddress(); // response_destination
     // bodySlice.skip(1); // custom_payload

@@ -12,9 +12,9 @@ import { JettonOperation } from '../constants';
  = InternalMsgBody;
  */
 
-export function parseInternalTransferTransaction(bodySlice: Slice, transaction: TonTransaction): JettonIncomeTransaction {
+export function parseInternalTransferTransaction(bodySlice: Slice, transaction: TonTransaction, decimals: number): JettonIncomeTransaction {
     const queryId = bodySlice.loadBigUint(64);
-    const amount = bodySlice.loadCoins();
+    const amount = bodySlice.loadCoins(decimals);
     const from = bodySlice.loadAddress();
 
     bodySlice.loadAddress(); // response_address

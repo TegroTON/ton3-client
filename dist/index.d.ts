@@ -1,1 +1,1 @@
-export { TonClient } from './Client/Client';
+export * from './Client';

@@ -1,7 +1,7 @@
 # 💎 @tegro/ton3-client
 [![License](https://img.shields.io/badge/license-MIT-brightgreen)](https://opensource.org/licenses/MIT)
 [![ton3](https://img.shields.io/badge/for%20use%20with-ton3-brightgreen)](https://github.com/tonstack/ton3-core)
-[![npm](https://img.shields.io/npm/v/@tegro/ton3-contracts.svg)](https://npmjs.com/package/@tegro/ton3-contracts)
+[![npm](https://img.shields.io/npm/v/@tegro/ton3-client.svg)](https://npmjs.com/package/@tegro/ton3-client)
 [![TON](https://img.shields.io/badge/based%20on-The%20Open%20Network-blue)](https://ton.org/)
 
 > :warning: Work in progress, API can (and most likely will) be changed!

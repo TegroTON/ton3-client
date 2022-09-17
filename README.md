@@ -86,7 +86,13 @@ const jettonsExample = async (jettonAddress: Address, myAddress: Address) => {
 
 ```
 
+## Bug Report
+If you have questions or suggestions, please file an [Issue](https://github.com/TegroTON/.github/issues/new/choose).
 
 ## License
 
 MIT License
+
+
+
+

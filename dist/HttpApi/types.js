@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getBlockTransactions = exports.blockShortTxt = exports.getShards = exports.getMasterchain = exports.getTransactions = exports.transaction = exports.message = exports.messageData = exports.callGetMethod = exports.feeResponse = exports.bocResponse = exports.addressInformation = exports.blockIdExt = void 0;
+exports.getBlockTransactions = exports.blockShortTxt = exports.getShards = exports.getConfigParam = exports.getMasterchain = exports.getTransactions = exports.transaction = exports.message = exports.messageData = exports.callGetMethod = exports.feeResponse = exports.bocResponse = exports.addressInformation = exports.blockIdExt = void 0;
 const t = __importStar(require("io-ts"));
 exports.blockIdExt = t.type({
     '@type': t.literal('ton.blockIdExt'),
@@ -110,6 +110,13 @@ exports.getMasterchain = t.type({
     state_root_hash: t.string,
     last: exports.blockIdExt,
     init: exports.blockIdExt,
+});
+exports.getConfigParam = t.type({
+    '@type': t.literal('configInfo'),
+    config: t.type({
+        '@type': t.literal('tvm.cell'),
+        bytes: t.string,
+    }),
 });
 exports.getShards = t.type({
     shards: t.array(exports.blockIdExt),

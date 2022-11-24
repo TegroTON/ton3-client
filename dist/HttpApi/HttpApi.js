@@ -50,6 +50,12 @@ class HttpApi {
     async getMasterchainInfo() {
         return this.doCall('getMasterchainInfo', {}, types_1.getMasterchain);
     }
+    async getConfigParam(configId, opts) {
+        return this.doCall('getConfigParam', {
+            config_id: configId,
+            ...opts,
+        }, types_1.getConfigParam);
+    }
     async getTransaction(address, lt, hash) {
         const convHash = (0, Helpers_1.base64ToHex)(hash);
         const res = await this.doCall('getTransactions', {

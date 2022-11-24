@@ -1,5 +1,5 @@
 import {
-    Address, Builder, Cell, Coins, Slice,
+    Address, BOC, Builder, Cell, Coins, Slice,
 } from 'ton3-core';
 import { base64ToBytes, hexToBytes } from 'ton3-core/dist/utils/helpers';
 import { MessageExternalIn } from 'ton3-core/dist/contracts';
@@ -7,8 +7,8 @@ import { HttpApi } from '../HttpApi/HttpApi';
 import GetMethodParser from './parsers/GetMethodParser';
 import { TonTransaction } from './types';
 import { convertTransaction } from './utils';
-import { Dns } from './DNS';
-import { Jetton } from './Jetton';
+import Dns from './DNS';
+import Jetton from './Jetton';
 
 export type TonClientParameters = {
     endpoint: string;
@@ -66,7 +66,7 @@ export class TonClient {
         to_lt?: string,
         inclusive?: boolean,
         archival?: boolean
-    }) {
+    }): Promise<TonTransaction[]> {
         // Fetch transactions
         try {
             const tx = await this.#api.getTransactions(address, opts);
@@ -108,6 +108,11 @@ export class TonClient {
             },
             timestamp: info.sync_utime,
         };
+    }
+
+    async getConfigParam(configId: number, seqno?:number) {
+        const { bytes } = (await this.#api.getConfigParam(configId, { seqno })).config;
+        return bytes ? BOC.fromStandard(bytes) : new Cell();
     }
 
     async sendMessage(src: MessageExternalIn, key: Uint8Array) {

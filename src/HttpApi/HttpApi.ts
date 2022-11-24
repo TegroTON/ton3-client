@@ -4,7 +4,13 @@ import { isRight } from 'fp-ts/lib/Either';
 import reporter from 'io-ts-reporters';
 import axios from 'axios';
 import {
-    addressInformation, getTransactions, getMasterchain, callGetMethod, bocResponse, feeResponse,
+    addressInformation,
+    getTransactions,
+    getMasterchain,
+    callGetMethod,
+    bocResponse,
+    feeResponse,
+    getConfigParam,
 } from './types';
 import { base64ToHex } from '../Utils/Helpers';
 
@@ -79,6 +85,13 @@ export class HttpApi {
 
     async getMasterchainInfo() {
         return this.doCall('getMasterchainInfo', {}, getMasterchain);
+    }
+
+    async getConfigParam(configId: number, opts: { seqno?: number }) {
+        return this.doCall('getConfigParam', {
+            config_id: configId,
+            ...opts,
+        }, getConfigParam);
     }
 
     async getTransaction(address: Address, lt: string, hash: string) {

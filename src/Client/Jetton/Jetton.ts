@@ -3,11 +3,8 @@ import {
 } from 'ton3-core';
 import { TonClient } from '../Client';
 import { JettonTransaction, MetadataKeys } from '../types';
-import { parseMetadata } from '../parsers/parseMetadata';
-import { JettonOperation } from '../constants';
-import { parseTransferTransaction } from '../parsers/parseTransferTransaction';
-import { parseInternalTransferTransaction } from '../parsers/parseInternalTransferTransaction';
-import { parseBurnTransaction } from '../parsers/parseBurnTransaction';
+import MetadataParser from '../parsers/MetadataParser';
+import JettonTransactionParser from '../parsers/JettonTransactionParser';
 
 export class Jetton {
     private readonly client: TonClient;
@@ -45,7 +42,7 @@ export class Jetton {
         return {
             totalSupply,
             adminAddress,
-            content: await parseMetadata(contentCell, opts?.metadataKeys),
+            content: await MetadataParser.parseMetadata(contentCell, opts?.metadataKeys),
             jettonWalletCode,
         };
     }
@@ -100,29 +97,7 @@ export class Jetton {
         const jettonDecimals = decimals ?? await this.getDecimalsByWallet(jettonWallet);
 
         return transactions
-            .map((transaction): JettonTransaction | null => {
-                if (transaction.inMessage?.body?.type !== 'data') {
-                    return null; // Not a jetton transaction
-                }
-
-                const bodySlice = Slice.parse(BOC.fromStandard(transaction.inMessage.body.data));
-                const operation = bodySlice.loadUint(32);
-
-                try {
-                    switch (operation) {
-                        case JettonOperation.TRANSFER:
-                            return parseTransferTransaction(bodySlice, transaction, jettonDecimals);
-                        case JettonOperation.INTERNAL_TRANSFER:
-                            return parseInternalTransferTransaction(bodySlice, transaction, jettonDecimals);
-                        case JettonOperation.BURN:
-                            return parseBurnTransaction(bodySlice, transaction, jettonDecimals);
-                        default:
-                            return null; // Unknown operation
-                    }
-                } catch {
-                    return null;
-                }
-            })
+            .map((transaction): JettonTransaction | null => JettonTransactionParser.parseTransaction(transaction, jettonDecimals))
             .filter((transaction) => !!transaction) as JettonTransaction[];
     }
 }

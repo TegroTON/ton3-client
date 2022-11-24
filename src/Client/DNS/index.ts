@@ -1,5 +1,3 @@
 import { Dns } from './Dns';
 
-export {
-    Dns,
-};
+export default Dns;

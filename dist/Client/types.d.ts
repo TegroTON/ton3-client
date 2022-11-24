@@ -28,34 +28,26 @@ export declare type TonTransaction = {
     data: string;
     inMessage: TonMessage | null;
     outMessages: TonMessage[];
+    type: ('external' | 'internal');
 };
-export interface JettonIncomeTransaction {
-    operation: JettonOperation.INTERNAL_TRANSFER;
-    time: number;
+export interface JettonTransfer {
+    operation: (JettonOperation.INTERNAL_TRANSFER | JettonOperation.TRANSFER);
     queryId: bigint;
     amount: Coins;
     forwardTonAmount: Coins;
-    from: Address | null;
-    comment?: string;
-    data?: string;
-}
-export interface JettonOutcomeTransaction {
-    operation: JettonOperation.TRANSFER;
-    time: number;
-    queryId: bigint;
-    amount: Coins;
-    forwardTonAmount: Coins;
+    source: Address | null;
     destination: Address | null;
     comment?: string;
     data?: string;
+    transaction: TonTransaction;
 }
-export interface JettonBurnTransaction {
+export interface JettonBurn {
     operation: JettonOperation.BURN;
-    time: number;
     queryId: bigint;
     amount: Coins;
+    transaction: TonTransaction;
 }
-export declare type JettonTransaction = JettonIncomeTransaction | JettonOutcomeTransaction | JettonBurnTransaction;
+export declare type JettonTransaction = JettonTransfer | JettonBurn;
 export declare type MetadataKeys = {
     [key: string]: bigint;
 };

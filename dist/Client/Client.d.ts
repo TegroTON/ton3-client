@@ -1,8 +1,8 @@
 import { Address, Cell, Coins } from 'ton3-core';
 import { MessageExternalIn } from 'ton3-core/dist/contracts';
 import { TonTransaction } from './types';
-import { Dns } from './DNS';
-import { Jetton } from './Jetton';
+import Dns from './DNS';
+import Jetton from './Jetton';
 export declare type TonClientParameters = {
     endpoint: string;
     timeout?: number;
@@ -49,6 +49,7 @@ export declare class TonClient {
         };
         timestamp: number;
     }>;
+    getConfigParam(configId: number, seqno?: number): Promise<Cell>;
     sendMessage(src: MessageExternalIn, key: Uint8Array): Promise<void>;
     sendBoc(src: Cell): Promise<void>;
     getEstimateFee(src: MessageExternalIn | Cell): Promise<{

@@ -1,12 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Jetton = void 0;
 const ton3_core_1 = require("ton3-core");
-const parseMetadata_1 = require("../parsers/parseMetadata");
-const constants_1 = require("../constants");
-const parseTransferTransaction_1 = require("../parsers/parseTransferTransaction");
-const parseInternalTransferTransaction_1 = require("../parsers/parseInternalTransferTransaction");
-const parseBurnTransaction_1 = require("../parsers/parseBurnTransaction");
+const MetadataParser_1 = __importDefault(require("../parsers/MetadataParser"));
+const JettonTransactionParser_1 = __importDefault(require("../parsers/JettonTransactionParser"));
 class Jetton {
     constructor(client) {
         this.client = client;
@@ -30,7 +30,7 @@ class Jetton {
         return {
             totalSupply,
             adminAddress,
-            content: await (0, parseMetadata_1.parseMetadata)(contentCell, opts?.metadataKeys),
+            content: await MetadataParser_1.default.parseMetadata(contentCell, opts?.metadataKeys),
             jettonWalletCode,
         };
     }
@@ -68,28 +68,7 @@ class Jetton {
         const transactions = await this.client.getTransactions(jettonWallet, { limit });
         const jettonDecimals = decimals ?? await this.getDecimalsByWallet(jettonWallet);
         return transactions
-            .map((transaction) => {
-            if (transaction.inMessage?.body?.type !== 'data') {
-                return null;
-            }
-            const bodySlice = ton3_core_1.Slice.parse(ton3_core_1.BOC.fromStandard(transaction.inMessage.body.data));
-            const operation = bodySlice.loadUint(32);
-            try {
-                switch (operation) {
-                    case constants_1.JettonOperation.TRANSFER:
-                        return (0, parseTransferTransaction_1.parseTransferTransaction)(bodySlice, transaction, jettonDecimals);
-                    case constants_1.JettonOperation.INTERNAL_TRANSFER:
-                        return (0, parseInternalTransferTransaction_1.parseInternalTransferTransaction)(bodySlice, transaction, jettonDecimals);
-                    case constants_1.JettonOperation.BURN:
-                        return (0, parseBurnTransaction_1.parseBurnTransaction)(bodySlice, transaction, jettonDecimals);
-                    default:
-                        return null;
-                }
-            }
-            catch {
-                return null;
-            }
-        })
+            .map((transaction) => JettonTransactionParser_1.default.parseTransaction(transaction, jettonDecimals))
             .filter((transaction) => !!transaction);
     }
 }

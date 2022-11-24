@@ -21,6 +21,8 @@ export function convertMessage(t: HTTPMessage): TonMessage {
 }
 
 export function convertTransaction(r: HTTPTransaction): TonTransaction {
+    const inMessage = r.in_msg ? convertMessage(r.in_msg) : null;
+    const type = inMessage && inMessage.source ? 'external' : 'internal';
     return {
         id: { lt: r.transaction_id.lt, hash: r.transaction_id.hash },
         time: r.utime,
@@ -28,7 +30,8 @@ export function convertTransaction(r: HTTPTransaction): TonTransaction {
         storageFee: new Coins(r.storage_fee, { isNano: true }),
         otherFee: new Coins(r.other_fee, { isNano: true }),
         fee: new Coins(r.fee, { isNano: true }),
-        inMessage: r.in_msg ? convertMessage(r.in_msg) : null,
+        inMessage,
         outMessages: r.out_msgs.map(convertMessage),
+        type,
     };
 }

@@ -20,6 +20,8 @@ function convertMessage(t) {
 }
 exports.convertMessage = convertMessage;
 function convertTransaction(r) {
+    const inMessage = r.in_msg ? convertMessage(r.in_msg) : null;
+    const type = inMessage && inMessage.source ? 'external' : 'internal';
     return {
         id: { lt: r.transaction_id.lt, hash: r.transaction_id.hash },
         time: r.utime,
@@ -27,8 +29,9 @@ function convertTransaction(r) {
         storageFee: new ton3_core_1.Coins(r.storage_fee, { isNano: true }),
         otherFee: new ton3_core_1.Coins(r.other_fee, { isNano: true }),
         fee: new ton3_core_1.Coins(r.fee, { isNano: true }),
-        inMessage: r.in_msg ? convertMessage(r.in_msg) : null,
+        inMessage,
         outMessages: r.out_msgs.map(convertMessage),
+        type,
     };
 }
 exports.convertTransaction = convertTransaction;

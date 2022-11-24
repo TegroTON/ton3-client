@@ -108,6 +108,15 @@ export declare class HttpApi {
             file_hash: string;
         };
     }>;
+    getConfigParam(configId: number, opts: {
+        seqno?: number;
+    }): Promise<{
+        '@type': "configInfo";
+        config: {
+            '@type': "tvm.cell";
+            bytes: string;
+        };
+    }>;
     getTransaction(address: Address, lt: string, hash: string): Promise<{
         data: string;
         utime: number;

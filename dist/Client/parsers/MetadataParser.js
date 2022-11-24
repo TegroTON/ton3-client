@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseMetadata = void 0;
 const ton3_core_1 = require("ton3-core");
 const helpers_1 = require("ton3-core/dist/utils/helpers");
 const axios_1 = __importDefault(require("axios"));
@@ -45,20 +44,21 @@ const parseOffchain = async (content, keys = constants_1.JettonMetadataKeys) => 
     const metadata = await uriToJson(uri);
     return Object.fromEntries(Object.keys(keys).map((key) => [key, key in metadata ? metadata[key] : '']));
 };
-const parseMetadata = async (content, keys = constants_1.JettonMetadataKeys) => {
-    const ds = ton3_core_1.Slice.parse(content);
-    if (ds.bits.length < 8) {
-        throw Error('Invalid metadata');
-    }
-    const contentLayout = ds.loadUint(8);
-    switch (contentLayout) {
-        case constants_1.ContentLayout.ONCHAIN:
-            return parseOnchain(content, keys);
-        case constants_1.ContentLayout.OFFCHAIN:
-            return parseOffchain(content, keys);
-        default:
-            throw Error('Invalid metadata prefix');
-    }
+exports.default = {
+    async parseMetadata(content, keys = constants_1.JettonMetadataKeys) {
+        const ds = ton3_core_1.Slice.parse(content);
+        if (ds.bits.length < 8) {
+            throw Error('Invalid metadata');
+        }
+        const contentLayout = ds.loadUint(8);
+        switch (contentLayout) {
+            case constants_1.ContentLayout.ONCHAIN:
+                return parseOnchain(content, keys);
+            case constants_1.ContentLayout.OFFCHAIN:
+                return parseOffchain(content, keys);
+            default:
+                throw Error('Invalid metadata prefix');
+        }
+    },
 };
-exports.parseMetadata = parseMetadata;
-//# sourceMappingURL=parseMetadata.js.map
+//# sourceMappingURL=MetadataParser.js.map

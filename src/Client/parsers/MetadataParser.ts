@@ -31,12 +31,12 @@ const parseOnchain = async (content: Cell, keys: MetadataKeys = JettonMetadataKe
         const prefix = ds.loadUint(8);
 
         switch (prefix) {
-            case DataFormat.SNAKE:
-                return [name, bytesToString(loadSnake(ds))];
-            case DataFormat.CHUNK:
-                return [name, ''];
-            default:
-                return [name, ''];
+        case DataFormat.SNAKE:
+            return [name, bytesToString(loadSnake(ds))];
+        case DataFormat.CHUNK:
+            return [name, ''];
+        default:
+            return [name, ''];
         }
     });
     const metadata = Object.fromEntries(normalize);
@@ -51,20 +51,22 @@ const parseOffchain = async (content: Cell, keys: MetadataKeys = JettonMetadataK
     return Object.fromEntries(Object.keys(keys).map((key) => [key, key in metadata ? metadata[key] : '']));
 };
 
-export const parseMetadata = async (content: Cell, keys: MetadataKeys = JettonMetadataKeys) => {
-    const ds = Slice.parse(content);
-    if (ds.bits.length < 8) {
-        throw Error('Invalid metadata');
-    }
+export default {
+    async parseMetadata(content: Cell, keys: MetadataKeys = JettonMetadataKeys) {
+        const ds = Slice.parse(content);
+        if (ds.bits.length < 8) {
+            throw Error('Invalid metadata');
+        }
 
-    const contentLayout = ds.loadUint(8);
+        const contentLayout = ds.loadUint(8);
 
-    switch (contentLayout) {
-        case ContentLayout.ONCHAIN:
-            return parseOnchain(content, keys);
-        case ContentLayout.OFFCHAIN:
-            return parseOffchain(content, keys);
-        default:
-            throw Error('Invalid metadata prefix');
-    }
+        switch (contentLayout) {
+            case ContentLayout.ONCHAIN:
+                return parseOnchain(content, keys);
+            case ContentLayout.OFFCHAIN:
+                return parseOffchain(content, keys);
+            default:
+                throw Error('Invalid metadata prefix');
+        }
+    },
 };

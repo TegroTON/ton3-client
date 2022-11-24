@@ -209,6 +209,13 @@ export declare const getMasterchain: t.TypeC<{
         file_hash: t.StringC;
     }>;
 }>;
+export declare const getConfigParam: t.TypeC<{
+    '@type': t.LiteralC<"configInfo">;
+    config: t.TypeC<{
+        '@type': t.LiteralC<"tvm.cell">;
+        bytes: t.StringC;
+    }>;
+}>;
 export declare const getShards: t.TypeC<{
     shards: t.ArrayC<t.TypeC<{
         '@type': t.LiteralC<"ton.blockIdExt">;

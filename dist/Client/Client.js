@@ -21,8 +21,8 @@ const helpers_1 = require("ton3-core/dist/utils/helpers");
 const HttpApi_1 = require("../HttpApi/HttpApi");
 const GetMethodParser_1 = __importDefault(require("./parsers/GetMethodParser"));
 const utils_1 = require("./utils");
-const DNS_1 = require("./DNS");
-const Jetton_1 = require("./Jetton");
+const DNS_1 = __importDefault(require("./DNS"));
+const Jetton_1 = __importDefault(require("./Jetton"));
 class TonClient {
     constructor(parameters) {
         _TonClient_api.set(this, void 0);
@@ -33,8 +33,8 @@ class TonClient {
             timeout: parameters.timeout,
             apiKey: parameters.apiKey,
         }), "f");
-        this.DNS = new DNS_1.Dns(this);
-        this.Jetton = new Jetton_1.Jetton(this);
+        this.DNS = new DNS_1.default(this);
+        this.Jetton = new Jetton_1.default(this);
     }
     isTestnet() {
         return __classPrivateFieldGet(this, _TonClient_api, "f").endpoint.indexOf('testnet') > -1;
@@ -86,6 +86,10 @@ class TonClient {
             },
             timestamp: info.sync_utime,
         };
+    }
+    async getConfigParam(configId, seqno) {
+        const { bytes } = (await __classPrivateFieldGet(this, _TonClient_api, "f").getConfigParam(configId, { seqno })).config;
+        return bytes ? ton3_core_1.BOC.fromStandard(bytes) : new ton3_core_1.Cell();
     }
     async sendMessage(src, key) {
         await this.sendBoc(src.sign(key));

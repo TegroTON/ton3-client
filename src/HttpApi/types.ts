@@ -96,6 +96,14 @@ export const getMasterchain = t.type({
     init: blockIdExt,
 });
 
+export const getConfigParam = t.type({
+    '@type': t.literal('configInfo'),
+    config: t.type({
+        '@type': t.literal('tvm.cell'),
+        bytes: t.string,
+    }),
+});
+
 export const getShards = t.type({
     shards: t.array(blockIdExt),
 });

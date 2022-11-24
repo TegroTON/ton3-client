@@ -18,12 +18,12 @@ npm i @tegro/ton3-client
 import { TonClient } from '@tegro/ton3-client';
 import { Coins, Address } from 'ton3-core';
 
-const endpoint = 'https://api.tonhold.com/jsonRPC'; // jsonRPC API url
+const endpoint = 'https://api.toncenter.com/jsonRPC'; // jsonRPC API url
 const apiKey = 'HERE_WILL_BE_YOUR_API_KEY_IF_IT_IS_REQUIRED';
 
 const tonClient = new TonClient({ endpoint, apiKey });
 
-// This is a part of TON Hold wallet
+// This is a part of Tegro Wallet
 const getBestWalletTypeByPublicKey = async (publicKey: Uint8Array) => {
     const walletTypes = ['org.ton.wallets.v3.r2', 'org.ton.wallets.v4.r2'];
     let maxBalance = new Coins(0);

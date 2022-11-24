@@ -1,8 +1,9 @@
-export default class GetMethodParser {
-    static parseObject(x: any): any;
-    static parseResponseStack(pair: any[]): any;
-    static parseRawResult(result: any): any[];
-    static parseStack(stack: any): any[];
-    static makeArg(arg: any): (string | Number | BigInt)[];
-    static makeArgs(args: any): any;
-}
+declare const _default: {
+    parseObject(x: any): any;
+    parseResponseStack(pair: any[]): any;
+    parseRawResult(result: any): any[];
+    parseStack(stack: any): any[];
+    makeArg(arg: any): (string | Number | BigInt)[];
+    makeArgs(args: any): any;
+};
+export default _default;

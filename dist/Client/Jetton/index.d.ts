@@ -1,2 +1,2 @@
 import { Jetton } from './Jetton';
-export { Jetton, };
+export default Jetton;

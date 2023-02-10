@@ -22,7 +22,7 @@ export function convertMessage(t: HTTPMessage): TonMessage {
 
 export function convertTransaction(r: HTTPTransaction): TonTransaction {
     const inMessage = r.in_msg ? convertMessage(r.in_msg) : null;
-    const type = inMessage && inMessage.source ? 'external' : 'internal';
+    const type = inMessage && inMessage.source ? 'internal' : 'external';
     return {
         id: { lt: r.transaction_id.lt, hash: r.transaction_id.hash },
         time: r.utime,

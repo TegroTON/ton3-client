@@ -1,6 +1,7 @@
 import { Address, Cell, Coins } from 'ton3-core';
 import { TonClient } from '../Client';
-import { JettonTransaction, MetadataKeys } from '../types';
+import { MetadataKeys } from '../../Utils/Metadata/types';
+import { JettonTransaction } from './types';
 export declare class Jetton {
     private readonly client;
     constructor(client: TonClient);
@@ -9,7 +10,7 @@ export declare class Jetton {
         metadataKeys?: MetadataKeys;
     }): Promise<{
         totalSupply: any;
-        adminAddress: Address | null;
+        adminAddress: import("ton3-core/dist/msgAddress").MsgAddressExt | Address;
         content: {
             [key: string]: string;
         };

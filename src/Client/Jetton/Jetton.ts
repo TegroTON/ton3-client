@@ -2,9 +2,10 @@ import {
     Address, BOC, Builder, Cell, Coins, Slice,
 } from 'ton3-core';
 import { TonClient } from '../Client';
-import { JettonTransaction, MetadataKeys } from '../types';
-import MetadataParser from '../parsers/MetadataParser';
-import JettonTransactionParser from '../parsers/JettonTransactionParser';
+import transactionParser from './transactionParser';
+import { MetadataKeys } from '../../Utils/Metadata/types';
+import { parseMetadata } from '../../Utils/Metadata/parser';
+import { JettonTransaction } from './types';
 
 export class Jetton {
     private readonly client: TonClient;
@@ -17,24 +18,21 @@ export class Jetton {
         jettonMasterContract: Address,
         walletOwner: Address,
     ): Promise<Address> {
-        const ownerAddressCell = new Builder().storeAddress(walletOwner).cell();
+        const { stack } = await this.client.runGetMethod({
+            address: jettonMasterContract,
+            method: 'get_wallet_address',
+            params: [walletOwner],
+        });
 
-        const { stack } = await this.client.callGetMethod(jettonMasterContract, 'get_wallet_address', [
-            [
-                'tvm.Slice',
-                BOC.toBase64Standard(ownerAddressCell, { has_index: false }),
-            ],
-        ]);
-
-        return Slice.parse(stack[0] as Cell).preloadAddress();
+        return (stack[0] as Cell).parse().preloadAddress() as Address;
     }
 
     async getData(jettonMasterContract: Address, opts?: { metadataKeys?: MetadataKeys }) {
-        const { stack } = await this.client.callGetMethod(jettonMasterContract, 'get_jetton_data', []);
+        const { stack } = await this.client.runGetMethod({ address: jettonMasterContract, method: 'get_jetton_data' });
 
         const totalSupply = stack[0];
 
-        const adminAddress = Slice.parse(stack[2] as Cell).loadAddress();
+        const adminAddress = (stack[2] as Cell).parse().loadAddress();
 
         const contentCell = stack[3];
         const jettonWalletCode = stack[4];
@@ -42,7 +40,7 @@ export class Jetton {
         return {
             totalSupply,
             adminAddress,
-            content: await MetadataParser.parseMetadata(contentCell, opts?.metadataKeys),
+            content: await parseMetadata(contentCell, opts?.metadataKeys),
             jettonWalletCode,
         };
     }
@@ -66,17 +64,17 @@ export class Jetton {
         const {
             stack,
             exitCode,
-        } = await this.client.callGetMethod(jettonWallet, 'get_wallet_data', []);
+        } = await this.client.runGetMethod({ address: jettonWallet, method: 'get_wallet_data' });
 
         if (exitCode === -13) throw new Error('Jetton wallet is not deployed.');
         if (exitCode !== 0) throw new Error('Cannot retrieve jetton wallet data.');
 
-        const jettonMasterAddress = Slice.parse(stack[2] as Cell).preloadAddress();
+        const jettonMasterAddress = (stack[2] as Cell).parse().preloadAddress() as Address;
 
         const decimals = await this.getDecimals(jettonMasterAddress);
 
         const balance = new Coins(stack[0], { isNano: true, decimals });
-        const ownerAddress = Slice.parse(stack[1] as Cell).preloadAddress();
+        const ownerAddress = (stack[1] as Cell).parse().preloadAddress() as Address;
         const jettonWalletCode = stack[3];
 
         return {
@@ -93,11 +91,11 @@ export class Jetton {
     }
 
     async getTransactions(jettonWallet: Address, limit = 5, decimals?: number) {
-        const transactions = await this.client.getTransactions(jettonWallet, { limit });
+        const transactions = await this.client.getTransactions({ address: jettonWallet, limit });
         const jettonDecimals = decimals ?? await this.getDecimalsByWallet(jettonWallet);
 
         return transactions
-            .map((transaction): JettonTransaction | null => JettonTransactionParser.parseTransaction(transaction, jettonDecimals))
+            .map((transaction): JettonTransaction | null => transactionParser.parseTransaction(transaction, jettonDecimals))
             .filter((transaction) => !!transaction) as JettonTransaction[];
     }
 }

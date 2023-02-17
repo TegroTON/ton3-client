@@ -1,160 +1,94 @@
-import { Address, BOC, Cell } from 'ton3-core';
 import * as t from 'io-ts';
-import { isRight } from 'fp-ts/lib/Either';
-import reporter from 'io-ts-reporters';
-import axios from 'axios';
+import { Cell } from 'ton3-core';
+import Method from './Method';
+import Codecs from './Codecs';
+import InTransformers, {
+    InAddressInformation,
+    InEstimateFee, InGetConfigParam,
+    InGetTransactions, InRunGetMethod, InSendBoc,
+} from './InTransformers';
+import OutTransformers from './OutTransformers';
 import {
-    addressInformation,
-    getTransactions,
-    getMasterchain,
-    callGetMethod,
-    bocResponse,
-    feeResponse,
-    getConfigParam,
+    TonTransaction, TonAddressInformation, TonFees, TonGetMethod,
 } from './types';
-import { base64ToHex } from '../Utils/Helpers';
 
 export interface HttpApiParameters {
+    endpoint: string;
     timeout?: number;
     apiKey?: string;
 }
 
-interface HttpApiResolvedParameters extends HttpApiParameters {
+export interface HttpApiResolvedParameters extends HttpApiParameters {
     timeout: number;
 }
 
 export class HttpApi {
-    readonly endpoint: string;
+    protected readonly params: HttpApiResolvedParameters;
 
-    private readonly parameters: HttpApiResolvedParameters;
+    public getAddressInformation: (opts: InAddressInformation) => Promise<TonAddressInformation>;
 
-    constructor(endpoint: string, parameters?: HttpApiParameters) {
-        this.endpoint = endpoint;
+    public getTransactions: (opts: InGetTransactions) => Promise<TonTransaction[]>;
 
-        this.parameters = {
-            timeout: parameters?.timeout || 30000, // 30 seconds by default
-            apiKey: parameters?.apiKey,
+    public estimateFee: (opts: InEstimateFee) => Promise<TonFees>;
+
+    public runGetMethod: (opts: InRunGetMethod) => Promise<TonGetMethod>;
+
+    public sendBoc: (opts: InSendBoc) => Promise<t.TypeOf<typeof Codecs.bocResponse>>;
+
+    public getConfigParam: (opts: InGetConfigParam) => Promise<Cell>;
+
+    constructor(params: HttpApiParameters) {
+        this.params = {
+            ...params,
+            timeout: params?.timeout || 30000, // 30 seconds by default
         };
-    }
 
-    getAddressInformation(address: Address) {
-        return this.doCall('getAddressInformation', { address: address.toString() }, addressInformation);
-    }
+        this.getAddressInformation = (opts) => new Method({
+            ...this.params,
+            methodName: 'getAddressInformation',
+            codec: Codecs.addressInformation,
+            inTransformer: InTransformers.getAddressInformation,
+            outTransformer: OutTransformers.getAddressInformation,
+        }).call(opts);
 
-    async getTransactions(address: Address, opts: {
-        limit: number,
-        lt?: string,
-        hash?: string,
-        to_lt?: string,
-        inclusive?: boolean
-        archival?: boolean
-    }) {
-        const { inclusive } = opts;
-        delete opts.inclusive;
+        this.getTransactions = (opts) => new Method({
+            ...this.params,
+            methodName: 'getTransactions',
+            codec: Codecs.getTransactions,
+            inTransformer: InTransformers.getTransactions,
+            outTransformer: OutTransformers.getTransactions,
+        }).call(opts);
 
-        // Convert hash
-        let hash: string | undefined;
-        if (opts.hash) {
-            hash = base64ToHex(opts.hash);
-        }
+        this.estimateFee = (opts) => new Method({
+            ...this.params,
+            methodName: 'estimateFee',
+            codec: Codecs.estimateFee,
+            inTransformer: InTransformers.estimateFee,
+            outTransformer: OutTransformers.estimateFee,
+        }).call(opts);
 
-        // Adjust limit
-        let { limit } = opts;
-        if (opts.hash && opts.lt && !inclusive) {
-            limit++;
-        }
+        this.runGetMethod = (opts) => new Method({
+            ...this.params,
+            methodName: 'runGetMethod',
+            codec: Codecs.runGetMethod,
+            inTransformer: InTransformers.runGetMethod,
+            outTransformer: OutTransformers.runGetMethod,
+        }).call(opts);
 
-        // Do request
-        let res = await this.doCall('getTransactions', {
-            address: address.toString(),
-            ...opts,
-            limit,
-            hash,
-        }, getTransactions);
-        if (res.length > limit) {
-            res = res.slice(0, limit);
-        }
+        this.sendBoc = (opts) => new Method({
+            ...this.params,
+            methodName: 'sendBoc',
+            codec: Codecs.bocResponse,
+            inTransformer: InTransformers.sendBoc,
+            outTransformer: OutTransformers.sendBoc,
+        }).call(opts);
 
-        // Adjust result
-        if (opts.hash && opts.lt && !inclusive) {
-            res.shift();
-            return res;
-        }
-        return res;
-    }
-
-    async getMasterchainInfo() {
-        return this.doCall('getMasterchainInfo', {}, getMasterchain);
-    }
-
-    async getConfigParam(configId: number, opts: { seqno?: number }) {
-        return this.doCall('getConfigParam', {
-            config_id: configId,
-            ...opts,
-        }, getConfigParam);
-    }
-
-    async getTransaction(address: Address, lt: string, hash: string) {
-        const convHash = base64ToHex(hash);
-        const res = await this.doCall('getTransactions', {
-            address: address.toString(),
-            lt,
-            hash: convHash,
-            limit: 1,
-        }, getTransactions);
-        const ex = res.find((v) => v.transaction_id.lt === lt && v.transaction_id.hash === hash);
-        if (ex) {
-            return ex;
-        }
-        return null;
-    }
-
-    async callGetMethod(address: Address, method: string, params: any[]) {
-        return this.doCall('runGetMethod', { address: address.toString(), method, stack: params }, callGetMethod);
-    }
-
-    async sendBoc(body: Cell) {
-        await this.doCall('sendBoc', { boc: BOC.toBase64Standard(body, { has_index: false }) }, bocResponse);
-    }
-
-    async estimateFee(address: Address, args: {
-        body: Cell,
-        initCode?: Cell,
-        initData?: Cell,
-        ignoreSignature: boolean
-    }) {
-        return this.doCall('estimateFee', {
-            address: address.toString(),
-            body: BOC.toBase64Standard(args.body, { has_index: false }),
-            init_data: args.initData ? BOC.toBase64Standard(args.initData, { has_index: false }) : '',
-            init_code: args.initCode ? BOC.toBase64Standard(args.initCode, { has_index: false }) : '',
-            ignore_chksig: args.ignoreSignature,
-        }, feeResponse);
-    }
-
-    private async doCall<T>(method: string, body: any, codec: t.Type<T>) {
-        const headers: Record<string, any> = {
-            'Content-Type': 'application/json',
-        };
-        if (this.parameters.apiKey) {
-            headers['X-API-Key'] = this.parameters.apiKey;
-        }
-        const res = await axios.post<{ ok: boolean, result: T }>(this.endpoint, JSON.stringify({
-            id: '1',
-            jsonrpc: '2.0',
-            method,
-            params: body,
-        }), {
-            headers,
-            timeout: this.parameters.timeout,
-        });
-        if (res.status !== 200 || !res.data.ok) {
-            throw Error(`Received error: ${JSON.stringify(res.data)}`);
-        }
-        const decoded = codec.decode(res.data.result);
-        if (isRight(decoded)) {
-            return decoded.right;
-        }
-        throw Error(`Malformed response: ${reporter.report(decoded).join(', ')}`);
+        this.getConfigParam = (opts) => new Method({
+            ...this.params,
+            methodName: 'getConfigParam',
+            codec: Codecs.getConfigParam,
+            inTransformer: InTransformers.getConfigParam,
+            outTransformer: OutTransformers.getConfigParam,
+        }).call(opts);
     }
 }

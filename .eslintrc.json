@@ -25,13 +25,14 @@
     "@typescript-eslint"
   ],
   "rules": {
-    "indent": [
-      "error",
-      4
-    ],
+    "indent": "off",
     "@typescript-eslint/indent": [
       "error",
-      4
+      4,
+      {
+        "SwitchCase": 1,
+        "ArrayExpression": "first"
+      }
     ],
     "import/prefer-default-export": "off",
     "no-restricted-globals": "off",

@@ -16,7 +16,7 @@ function categoryToBigInt(category) {
 }
 exports.categoryToBigInt = categoryToBigInt;
 function parseSmartContractAddressImpl(cell, prefix0, prefix1) {
-    const ds = ton3_core_1.Slice.parse(cell);
+    const ds = cell.parse();
     if (ds.loadUint(8) !== prefix0 || ds.loadUint(8) !== prefix1)
         throw new Error('Invalid dns record value prefix');
     return ds.loadAddress();
@@ -36,7 +36,11 @@ async function dnsResolveImpl(client, dnsAddress, rawDomainBytes, category, oneS
         .storeBytes(rawDomainBytes)
         .cell();
     const categoryBigInt = categoryToBigInt(category);
-    const { stack, } = await client.callGetMethod(dnsAddress, 'dnsresolve', [['tvm.Slice', ton3_core_1.BOC.toBase64Standard(domainCell, { has_index: false })], ['num', categoryBigInt.toString()]]);
+    const { stack } = await client.runGetMethod({
+        address: dnsAddress,
+        method: 'dnsresolve',
+        params: [domainCell.parse(), categoryBigInt],
+    });
     if (stack.length !== 2) {
         throw new Error('Invalid dnsresolve response');
     }

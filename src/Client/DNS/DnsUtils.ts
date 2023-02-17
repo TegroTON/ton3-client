@@ -3,6 +3,7 @@ import { stringToBytes } from 'ton3-core/dist/utils/helpers';
 import {
     Address, BOC, Builder, Cell, Slice,
 } from 'ton3-core';
+import { MsgAddress, MsgAddressExt } from 'ton3-core/dist/msgAddress';
 import { TonClient } from '../Client';
 
 export const DNS_CATEGORY_NEXT_RESOLVER = 'dns_next_resolver'; // Smart Contract address
@@ -20,17 +21,17 @@ export function parseSmartContractAddressImpl(
     cell: Cell,
     prefix0: number,
     prefix1: number,
-): Address | null {
-    const ds = Slice.parse(cell);
+): Address | MsgAddressExt {
+    const ds = cell.parse();
     if (ds.loadUint(8) !== prefix0 || ds.loadUint(8) !== prefix1) throw new Error('Invalid dns record value prefix');
     return ds.loadAddress();
 }
 
-export function parseSmartContractAddressRecord(cell: Cell): Address | null {
+export function parseSmartContractAddressRecord(cell: Cell): Address | MsgAddressExt {
     return parseSmartContractAddressImpl(cell, 0x9f, 0xd3);
 }
 
-export function parseNextResolverRecord(cell: Cell): Address | null {
+export function parseNextResolverRecord(cell: Cell): Address | MsgAddressExt {
     return parseSmartContractAddressImpl(cell, 0xba, 0x93);
 }
 
@@ -40,7 +41,7 @@ export async function dnsResolveImpl(
     rawDomainBytes: Uint8Array,
     category: string | undefined,
     oneStep: boolean | undefined,
-): Promise<Cell | Address | bigint | null> {
+): Promise<Cell | Address | MsgAddressExt | bigint | null> {
     const len = rawDomainBytes.length * 8;
 
     const domainCell = new Builder()
@@ -49,13 +50,11 @@ export async function dnsResolveImpl(
 
     const categoryBigInt = categoryToBigInt(category);
 
-    const {
-        stack,
-    } = await client.callGetMethod(
-        dnsAddress,
-        'dnsresolve',
-        [['tvm.Slice', BOC.toBase64Standard(domainCell, { has_index: false })], ['num', categoryBigInt.toString()]],
-    );
+    const { stack } = await client.runGetMethod({
+        address: dnsAddress,
+        method: 'dnsresolve',
+        params: [domainCell.parse(), categoryBigInt],
+    });
 
     if (stack.length !== 2) {
         throw new Error('Invalid dnsresolve response');
@@ -154,7 +153,7 @@ export async function dnsResolve(
     domain: string,
     category: string | undefined,
     oneStep: boolean | undefined,
-): Promise<Cell | Address | bigint | null> {
+): Promise<Cell | Address | MsgAddressExt | bigint | null> {
     const rawDomainBuffer = domainToBuffer(domain);
     return dnsResolveImpl(client, rootDnsAddress, rawDomainBuffer, category, oneStep);
 }

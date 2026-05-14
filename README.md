@@ -1,3 +1,9 @@
+> **Archived — early experimental TON SDK, no longer maintained.**
+>
+> Preserved for historical reference only. The code may be outdated and is not recommended for new projects.
+
+---
+
 # 💎 @tegro/ton3-client
 [![License](https://img.shields.io/badge/license-MIT-brightgreen)](https://opensource.org/licenses/MIT)
 [![ton3](https://img.shields.io/badge/for%20use%20with-ton3-brightgreen)](https://github.com/tonstack/ton3-core)
